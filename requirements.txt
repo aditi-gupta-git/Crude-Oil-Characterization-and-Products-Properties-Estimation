@@ -2,4 +2,8 @@ pandas
 matplotlib
 numpy
 seaborn
+scikit-learn
+tensorflow
+tensorboard
+streamlit
 -e .
