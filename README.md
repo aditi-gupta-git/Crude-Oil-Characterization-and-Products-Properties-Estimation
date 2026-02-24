@@ -21,3 +21,4 @@ Traditional laboratory methods (ASTM assays) require 4–8 hours per sample, wit
 - **Application of artificial neural network for prediction of 10 crude oil properties** *(Research Paper)* - Alizadeh et al. (2023)
   
 ## Dataset Information
+
