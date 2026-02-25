@@ -105,6 +105,7 @@ This project follows a structured machine learning pipeline across three indepen
    - Compare all model rankings by R² on test set
    - ANN training/validation loss curves monitored for overfitting
    - Sample prediction outputs verified against ground truth
+     
 ## Performance Metrics
 
 ### Set 1 — Hydrocarbon Composition (AromWt%, NaphWt%, ParaWt%)
@@ -169,6 +170,8 @@ This project follows a structured machine learning pipeline across three indepen
 > **Best Model:** AdaBoost Regressor (R² = 0.311)
 > Set 3 is the most challenging target set due to the diverse nature of 7 multi-physics outputs. Lower R² values reflect the fundamental difficulty of predicting these properties from bulk crude features alone.
 
+## Project Structure
+```text
 CrudeCharacterization/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Python dependencies
@@ -191,6 +194,7 @@ CrudeCharacterization/
 │   └── __init__.py
 │
 └── Project Report.docx                 # Detailed technical report
+```
 
 ## Key Technologies & Libraries
 
@@ -239,6 +243,7 @@ jupyter notebook
 
 ## Acknowledgments
 - FOSSEE, IIT Bombay under Prof. Prabhu Ramachandran and mentor Priyam Nayak
+
 
 
 
