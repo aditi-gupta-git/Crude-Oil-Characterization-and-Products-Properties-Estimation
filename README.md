@@ -1,3 +1,4 @@
+![Crude Oil Characterization & Product Property Estimation](banner.png)
 # CRUDE OIL CHARACTERISATION & PRODUCTS PROPERTIES ESTIMATION
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python)](https://python.org)
@@ -72,5 +73,172 @@ Traditional laboratory methods (ASTM assays) require 4–8 hours per sample, wit
 
 > **Note**: `BromineNumber` was dropped from the dataset due to 100% missing values.
 
+## Model Workflow
+This project follows a structured machine learning pipeline across three independent prediction tasks.
+
+1. **Data Extraction**
+   - The raw data was stored across 114 individual Excel assay files. A custom extraction script (`DataExtraction.ipynb`) was developed to automate data collection
+   - Consolidate all records into a single `Extracted_CrudeData.csv`
+
+2. **Data Preprocessing & EDA** (`ExploratoryDataAnalysis.ipynb`)
+   - Drop `BromineNumber` column (100% missing values)
+   - Coerce `KinematicViscosity` columns from object to numeric
+   - Validate non-negative constraints, TBP monotonicity, and PNA composition sums
+   - Perform univariate analysis: histograms with KDE, boxplots, violin plots, TBP curve overlays, and QQ plots
+   - Conduct bivariate analysis: scatter plots of all inputs vs. each target set
+   - Generate stacked bar charts for crude composition comparison
+   - Produce full pairplots and correlation heatmaps for multivariate relationships
+
+3. **Feature Engineering** (applied in all three model notebooks)
+   - Apply `StandardScaler` to all 13 numerical input features
+   - For ANN models: apply PCA (95% variance explained) before feeding to the network
+   - Train/test split: 80/20 with `random_state=42`
+
+4. **Model Training & Selection** (three separate notebooks: Set 1, 2, 3)
+   - Train multiple classical ML regressors using `MultiOutputRegressor` wrappers via `sklearn.Pipeline`
+   - Train a custom Artificial Neural Network (ANN) using Keras/TensorFlow
+   - ANN training uses Early Stopping and TensorBoard logging
+   - Evaluate all models using R², MAE, and RMSE on the test set
+   - Select best-performing model per target set
+
+5. **Model Diagnostics**
+   - Compare all model rankings by R² on test set
+   - ANN training/validation loss curves monitored for overfitting
+   - Sample prediction outputs verified against ground truth
+## Performance Metrics
+
+### Set 1 — Hydrocarbon Composition (AromWt%, NaphWt%, ParaWt%)
+
+| Model | R² | MAE (%) | RMSE (%) |
+|-------|----|---------|---------|
+| Support Vector Regression | **0.745** | 6.63 | 8.74 |
+| XGBoost | 0.597 | 8.15 | 10.01 |
+| Random Forest | 0.591 | 8.62 | 10.72 |
+| Gradient Boosting | 0.565 | 8.44 | 10.86 |
+| Elastic Net Regression | 0.507 | 9.62 | 12.22 |
+| Linear Regression | 0.482 | 9.28 | 12.16 |
+| K-Nearest Neighbours | 0.481 | 9.46 | 12.55 |
+| PLS Regression | 0.462 | 9.40 | 12.30 |
+| Ridge Regression | 0.433 | 9.77 | 12.49 |
+| Decision Tree Regression | 0.293 | 9.91 | 14.52 |
+| ANN (64→32→3, PCA) | 0.648 | 8.10 | 10.38 |
+
+> **Best Model:** Support Vector Regression (R² = 0.745)
+
+---
+
+### Set 2 — Kinematic Viscosity (KV @ 37.78°C and 98.89°C)
+
+| Model | R² | MAE | RMSE |
+|-------|----|-----|------|
+| **XGBoost** | **0.912** | 0.289 | 0.412 |
+| Linear Regression | 0.880 | 0.362 | 0.511 |
+| AdaBoost | 0.867 | 0.400 | 0.558 |
+| K-Nearest Neighbours | 0.865 | 0.350 | 0.531 |
+| Random Forest | 0.863 | 0.351 | 0.534 |
+| Ridge Regression | 0.863 | 0.379 | 0.558 |
+| Extra Trees Regressor | 0.858 | 0.334 | 0.564 |
+| SVR | 0.857 | 0.437 | 0.619 |
+| Gradient Boosting | 0.821 | 0.376 | 0.639 |
+| Decision Tree Regressor | 0.779 | 0.454 | 0.614 |
+| ElasticNet | 0.757 | 0.577 | 0.701 |
+| Lasso Regression | 0.403 | 0.831 | 0.986 |
+| ANN (64→Dropout→32→2) | 0.64 | — | — |
+
+> **Best Model:** XGBoost Regressor (R² = 0.912)
+> Note: Log-transformed viscosity targets used for ANN training due to extreme positive skew.
+
+---
+
+### Set 3 — Secondary Quality Specifications (7 targets)
+
+| Model | Test R² | Test MAE | Test RMSE |
+|-------|---------|---------|---------|
+| AdaBoost | 0.311 | 10.52 | 19.34 |
+| XGBoost | 0.268 | 11.01 | 20.31 |
+| Extra Tree Regression | 0.258 | 10.92 | 20.77 |
+| Elastic Net Regression | 0.246 | 10.75 | 20.43 |
+| Random Forest | 0.222 | 10.59 | 20.05 |
+| K-Nearest Neighbours | 0.182 | 11.56 | 21.27 |
+| Gradient Boosting | 0.170 | 11.24 | 21.68 |
+| Lasso Regression | 0.158 | 10.99 | 20.58 |
+| SVR | 0.121 | 9.74 | 19.16 |
+| PLS Regression | 0.027 | 10.86 | 20.45 |
+| ANN (128→64→32→16→7, PCA, BatchNorm) | 0.232 | 11.53 | 21.15 |
+
+> **Best Model:** AdaBoost Regressor (R² = 0.311)
+> Set 3 is the most challenging target set due to the diverse nature of 7 multi-physics outputs. Lower R² values reflect the fundamental difficulty of predicting these properties from bulk crude features alone.
+
+CrudeCharacterization/
+├── README.md                           # Project documentation
+├── requirements.txt                    # Python dependencies
+├── setup.py                            # Package setup
+├── .gitignore
+│
+├── notebook/                           # Jupyter notebooks
+│   ├── ExploratoryDataAnalysis.ipynb   # EDA, data cleaning & visualization
+│   ├── SET1 Model Training.ipynb       # ML + ANN models for Hydrocarbon Composition
+│   ├── SET2 Model Training.ipynb       # ML + ANN models for Kinematic Viscosity
+│   ├── SET3 Model Training.ipynb       # ML + ANN models for Secondary Quality Specs
+│   │
+│   ├── dataset/
+│   │   ├── Extracted_CrudeData.csv     # Consolidated extracted dataset (114 crudes)
+│   │   └── DataExtraction.ipynb        # Data extraction script from 114 Excel assay files
+│   │
+│   └── logs/                           # TensorBoard training logs
+│
+├── src/                                # Source code modules
+│   └── __init__.py
+│
+└── Project Report.docx                 # Detailed technical report
+
+## Key Technologies & Libraries
+
+- **Data Extraction & Processing:** Pandas, NumPy, StandardScaler
+- **Machine Learning:** Scikit-learn (Linear Regression, Ridge, Lasso, ElasticNet, SVR, KNN, Decision Tree, Random Forest, Gradient Boosting, AdaBoost, Extra Trees, PLS Regression), XGBoost
+- **Deep Learning:** TensorFlow, Keras (Sequential API, Dense, Dropout, BatchNormalization, EarlyStopping)
+- **Dimensionality Reduction:** PCA (sklearn)
+- **Visualization:** Matplotlib, Seaborn
+- **Model Evaluation:** R² Score, MAE, RMSE
+
+## Installation
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip package manager
+
+### Local Setup
+
+- Clone the repository
+```bash
+git clone https://github.com/yourusername/Crude-Oil-Characterization.git
+cd Crude-Oil-Characterization
+```
+
+- Create virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+```
+
+- Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+- Launch Jupyter Notebook
+```bash
+jupyter notebook
+```
+
+- Navigate to notebooks
+  - Open `DataExtraction.ipynb` to regenerate the dataset from raw Excel assay files
+  - Open `ExploratoryDataAnalysis.ipynb` for data cleaning and visualization
+  - Open `SET1_Model_Training.ipynb`, `SET2_Model_Training.ipynb`, or `SET3_Model_Training.ipynb` for model training and evaluation
+
+## Acknowledgments
+- FOSSEE, IIT Bombay under Prof. Prabhu Ramachandran and mentor Priyam Nayak
+- Selected 
 
 
