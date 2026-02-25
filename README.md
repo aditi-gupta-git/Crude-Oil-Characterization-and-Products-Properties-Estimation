@@ -235,10 +235,10 @@ jupyter notebook
 - Navigate to notebooks
   - Open `DataExtraction.ipynb` to regenerate the dataset from raw Excel assay files
   - Open `ExploratoryDataAnalysis.ipynb` for data cleaning and visualization
-  - Open `SET1_Model_Training.ipynb`, `SET2_Model_Training.ipynb`, or `SET3_Model_Training.ipynb` for model training and evaluation
+  - Open `SET1ModelTraining.ipynb`, `SET2ModelTraining.ipynb`, or `SET3ModelTraining.ipynb` for model training and evaluation
 
 ## Acknowledgments
 - FOSSEE, IIT Bombay under Prof. Prabhu Ramachandran and mentor Priyam Nayak
-- Selected 
+
 
 
